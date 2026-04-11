@@ -53,20 +53,20 @@ make up
 - **Frontend**: http://localhost:3030
 - **Backend API**: http://localhost:8030
 
-```
+
 
 ## 🔐 БД (Development)
 
-```
+
 Хост: localhost:3307
 Пользователь: root
 Пароль: root
 База: mi
-```
+
 
 ## 📁 Структура
 
-```
+
 electro-bike/
 ├── app/                # Next.js (Frontend)
 ├── backend/            # Flask (Backend)
@@ -74,9 +74,7 @@ electro-bike/
 ├── Dockerfile.next
 ├── Makefile
 └── README.md
-```
 
-## 👤 Автор
 
 [mapanit](https://github.com/mapanit)
 
