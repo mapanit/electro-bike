@@ -57,7 +57,6 @@ make up
 
 ## 🔐 БД (Development)
 
-
 Хост: localhost:3307
 Пользователь: root
 Пароль: root
@@ -66,14 +65,12 @@ make up
 
 ## 📁 Структура
 
-
 electro-bike/
-├── app/                # Next.js (Frontend)
-├── backend/            # Flask (Backend)
-├── docker-compose.yml
-├── Dockerfile.next
-├── Makefile
-└── README.md
+app/                # Next.js (Frontend)
+backend/            # Flask (Backend)
+docker-compose.yml
+Dockerfile.next
+README.md
 
 
 [mapanit](https://github.com/mapanit)
