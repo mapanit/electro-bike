@@ -3,16 +3,50 @@ from flask_cors import CORS # type: ignore
 from flask_sqlalchemy import SQLAlchemy # type: ignore
 from werkzeug.security import generate_password_hash, check_password_hash # type: ignore
 import pymysql
+import os
+import time
+import sys
 pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
-# Обновляем конфигурацию базы данных
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost/mi'
+# CORS конфигурация
+cors_origins = os.getenv('CORS_ORIGINS', 'http://localhost:3030')
+CORS(app, resources={r"/api/*": {"origins": cors_origins.split(',')}})
+
+# Конфигурация базы данных
+db_host = os.getenv('DB_HOST', 'db')
+db_user = os.getenv('DB_USER', 'root')
+db_password = os.getenv('DB_PASSWORD', 'root')
+db_name = os.getenv('DB_NAME', 'mi')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 3600
+}
 
 db = SQLAlchemy(app)
+
+# Функция для подождания готовности БД
+def wait_for_db(max_retries=30, retry_interval=2):
+    """Ждём, пока БД будет готова к подключению"""
+    for attempt in range(max_retries):
+        try:
+            print(f"🔄 Попытка подключения к БД ({attempt + 1}/{max_retries})...", file=sys.stderr)
+            with app.app_context():
+                db.engine.connect()
+            print("✅ БД готова!", file=sys.stderr)
+            return True
+        except Exception as e:
+            print(f"⏳ БД не готова: {e}", file=sys.stderr)
+            if attempt < max_retries - 1:
+                time.sleep(retry_interval)
+            else:
+                print("❌ Не удалось подключиться к БД после всех попыток", file=sys.stderr)
+                return False
+    return False
 
 
 class User(db.Model):
@@ -133,7 +167,20 @@ def after_request(response):
 
 
 if __name__ == '__main__':
+    # Ждём, пока БД будет готова
+    if not wait_for_db():
+        print("❌ Не удалось подключиться к БД. Выходим.", file=sys.stderr)
+        sys.exit(1)
+    
+    # Создаём таблицы
     with app.app_context():
-        # Создаем таблицы, если они не существуют
-        db.create_all()
-    app.run(debug=True)
+        try:
+            db.create_all()
+            print("✅ Таблицы инициализированы", file=sys.stderr)
+        except Exception as e:
+            print(f"⚠️  Ошибка при создании таблиц: {e}", file=sys.stderr)
+    
+    # Запускаем приложение
+    port = int(os.getenv('PORT', 8030))
+    print(f"🚀 Flask запускается на 0.0.0.0:{port}", file=sys.stderr)
+    app.run(host='0.0.0.0', port=port, debug=False)

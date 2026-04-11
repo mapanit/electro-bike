@@ -1,0 +1,70 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.next
+    container_name: electro-bike-frontend
+    ports:
+      - "3030:3030"
+    environment:
+      - PORT=3030
+      - NEXT_PUBLIC_API_URL=http://backend:8030
+    env_file:
+      - .env.docker
+    depends_on:
+      - backend
+    networks:
+      - electrobike-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: electro-bike-backend
+    ports:
+      - "8030:8030"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+      - PORT=8030
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=mi
+      - CORS_ORIGINS=http://localhost:3030,http://localhost:3000,http://frontend:3030
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - electrobike-network
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: electro-bike-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mi
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - electrobike-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+
+networks:
+  electrobike-network:
+    driver: bridge
+

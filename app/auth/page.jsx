@@ -31,7 +31,7 @@ export default function AuthPage() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`http://localhost:8030${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
