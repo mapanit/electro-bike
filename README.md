@@ -65,14 +65,9 @@ make up
 
 ## 📁 Структура
 
-electro-bike/
-app/                # Next.js (Frontend)
-backend/            # Flask (Backend)
-docker-compose.yml
-Dockerfile.next
-README.md
-
-
-[mapanit](https://github.com/mapanit)
-
-
+- electro-bike/
+- app/                # Next.js (Frontend)
+- backend/            # Flask (Backend)
+- docker-compose.yml
+- Dockerfile.next
+- README.md
