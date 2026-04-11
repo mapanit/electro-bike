@@ -57,10 +57,10 @@ make up
 
 ## 🔐 БД (Development)
 
-Хост: localhost:3307
-Пользователь: root
-Пароль: root
-База: mi
+- Хост: localhost:3307
+- Пользователь: root
+- Пароль: root
+- База: mi
 
 
 ## 📁 Структура
